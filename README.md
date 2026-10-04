@@ -10,7 +10,6 @@ This experimental Windows integration is derived from [rehan-remade/universal-mo
 - GTA walking/running/jumping/climbing, creative inventory with clicking/dragging/search, and the GTA minimap.
 - Minecraft blocks with GTA collision; elytra double-tap Space, fireworks and building/block collision checks.
 - Minecraft TNT, projectiles, mobs, fire and melee mirrored into GTA.
-- Optional Achroma 1.1.0: five-second strike buildup, synchronized GTA grayscale, lightning explosions/fire and outward shockwaves.
 - Escape hides the Minecraft layer during GTA's pause menu; resume restores it if Steve mode is active.
 - A Windows EXE checks the prepared installation, starts the dedicated Minecraft runtime and launches Enhanced through Steam.
 
@@ -46,14 +45,14 @@ Both games run simultaneously, so CPU/GPU load is substantial. Frame generation 
 | Path | Purpose |
 | --- | --- |
 | `gta/src/`, `gta/shaders/` | Native Story Mode bridge and ReShade composition |
-| `mc/src/` | Fabric capture, gameplay bridge and optional Achroma mixins |
+| `mc/src/` | Fabric capture, gameplay bridge |
 | `launcher/` | Windows Forms EXE source and clean templates |
 | `scripts/` | Setup, build, reversible install and public export |
-| `gta/tests/`, `mc/tests/` | Collision, pause gate and strike timing checks |
+| `gta/tests/` | Collision and pause gate checks |
 | `docs/` | Setup, launcher, architecture, privacy and AI prompt |
 
 See [launcher behavior](docs/LAUNCHER.md), [architecture](docs/ARCHITECTURE.md), [privacy](docs/PRIVACY.md) and [third-party notices](THIRD_PARTY_NOTICES.md).
 
 ## License
 
-MIT project source; upstream attribution is retained in [LICENSE](LICENSE). The modified Achroma shader is MIT under [its notice](licenses/ACHROMA-MIT.txt). The Gradle wrapper uses Apache 2.0. Game/mod runtimes must be obtained separately under their own terms.
+MIT project source; upstream attribution is retained in [LICENSE](LICENSE). The Gradle wrapper uses Apache 2.0. Game/mod runtimes must be obtained separately under their own terms.

@@ -102,8 +102,7 @@ final class ClientInput {
 					default -> null;
 				};
 				if (k.equals("attack") && down && player != null
-					&& (BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()).getPath().endsWith("_sword")
-						|| BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()).toString().equals("achroma:iris_balisong"))) {
+					&& BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()).getPath().endsWith("_sword")) {
 					// a sword swing: the host hits what's in front of Steve in its own world
 					Passthrough.events.accept("{\"t\":\"melee\"}");
 				}

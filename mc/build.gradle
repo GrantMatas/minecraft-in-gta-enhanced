@@ -40,7 +40,6 @@ processResources {
 
 tasks.named('jar') {
 	from('../LICENSE') { into 'licenses'; rename { 'PASSTHROUGH-MIT.txt' } }
-	from('../licenses/ACHROMA-MIT.txt') { into 'licenses' }
 }
 
 tasks.withType(JavaCompile).configureEach { it.options.release = 25 }

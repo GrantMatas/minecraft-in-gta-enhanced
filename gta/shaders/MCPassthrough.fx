@@ -52,7 +52,6 @@ uniform float BloomThreshold < ui_type = "drag"; ui_min = 0.0; ui_max = 1.0; ui_
 // (x, y: fraction of the screen height; z: roll, radians), and the nether portal's warp (0..1) while passing through.
 uniform float3 Shake = float3(0.0, 0.0, 0.0);
 uniform float PortalWarp = 0.0;
-uniform float AchromaDrain = 0.0;
 uniform float Timer < source = "timer"; >;
 uniform int DebugView < ui_type = "combo"; ui_items = "Composite\0GTA depth (1 m bands)\0Minecraft depth (1 m bands)\0Depth difference\0"; > = 0;
 // Disabled by default after Enhanced/RX 9070 motion testing exposed repeated
@@ -140,7 +139,6 @@ float3 bands(float z)
 void PS_Composite(float4 pos : SV_Position, float2 uv : TEXCOORD, out float4 outColor : SV_Target0, out float4 outInfo : SV_Target1)
 {
 	float3 host = tex2D(ReShade::BackBuffer, uv).rgb;
-	if (McActive) host = lerp(host, dot(host, float3(0.2126, 0.7152, 0.0722)).xxx, saturate(AchromaDrain));
 	outInfo = 0.0;
 	outColor = float4(host, 1.0);
 	if (!McActive)

@@ -5,7 +5,6 @@ import dev.rehan.passthrough.WorldBridge;
 import java.util.List;
 import java.util.Optional;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -93,10 +92,6 @@ public class PassthroughClient implements ClientModInitializer {
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			if (setupIn > 0 && --setupIn == 0) {
 				SETUP.forEach(WorldBridge::command);
-				if (FabricLoader.getInstance().isModLoaded("achroma")) {
-					WorldBridge.command("give @a achroma:eclipse_cannon");
-					WorldBridge.command("give @a achroma:iris_balisong");
-				}
 			}
 		});
 	}

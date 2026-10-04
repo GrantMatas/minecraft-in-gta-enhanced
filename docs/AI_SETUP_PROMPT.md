@@ -15,9 +15,6 @@ version against official Script Hook V support; do not bypass version checks.
 Use official Script Hook runtime/SDK and ReShade 6.8.0 with add-on support.
 Enhanced requires the compatible official xinput1_4.dll loader.
 
-If I want Achroma, use my trusted Achroma 1.1.0 JAR for Minecraft 26.3 only in
-mc/run/mods. Preserve its MIT notice. The full JAR is not in this repo.
-
 Prepare builds/package and review exact game files before any required install
 approval. Ask me to close GTA normally before replacing locked files. Never
 force-kill GTA or Minecraft. Let me handle login, Steam anti-cheat launch options
@@ -38,10 +35,6 @@ In Story Mode verify Steve activation/switching back; inventory click/drag/searc
 placement; GTA locomotion and free movement on block tops; double-tap Space
 elytra/fireworks; collision with buildings and blocks; Escape hiding the whole
 Minecraft layer in GTA menus and restoration on resume only when Steve is active.
-
-If Achroma is installed, verify five-second buildup, beam depth/coverage, GTA
-grayscale timing, lightning explosions/fire and outward shockwaves affecting
-GTA people, vehicles and loose objects. GTA roads/buildings cannot be carved.
 
 Run relevant checks only. Distinguish observed passes from visual checks still
 needed. Do not publish saves, downloads, runtime files, recordings, screenshots,

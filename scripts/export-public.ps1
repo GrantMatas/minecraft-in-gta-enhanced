@@ -8,7 +8,7 @@ if (Test-Path -LiteralPath $destinationPath) { throw 'Choose a new export direct
 New-Item -ItemType Directory -Path $destinationPath -Force | Out-Null
 $files = @('.gitignore','README.md','LICENSE','THIRD_PARTY_NOTICES.md','mc/build.gradle','mc/settings.gradle','mc/gradle.properties','mc/gradlew','mc/gradlew.bat','mc/.gitignore','gta/build.bat','gta/.gitignore','gta/fetch_deps.sh',
     'scripts/setup.ps1','scripts/build-launcher.ps1','scripts/install-gta.ps1','scripts/prepare-reshade.ps1','scripts/export-public.ps1')
-foreach ($directory in @('docs','licenses','gta/src','gta/shaders','mc/src','mc/tests','mc/gradle/wrapper','launcher')) {
+foreach ($directory in @('docs','licenses','gta/src','gta/shaders','mc/src','mc/gradle/wrapper','launcher')) {
     $files += Get-ChildItem -LiteralPath (Join-Path $root $directory) -Recurse -File | ForEach-Object { [IO.Path]::GetRelativePath($root,$_.FullName).Replace('\','/') }
 }
 foreach ($name in @('block_collision_test.cpp','build_block_collision.bat','pause_overlay_test.cpp','build_pause_overlay.bat')) { $files += "gta/tests/$name" }

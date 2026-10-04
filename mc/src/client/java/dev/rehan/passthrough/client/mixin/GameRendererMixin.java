@@ -1,10 +1,8 @@
 package dev.rehan.passthrough.client.mixin;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.resource.CrossFrameResourcePool;
 import dev.rehan.passthrough.Passthrough;
 import dev.rehan.passthrough.client.FrameExporter;
-import dev.rehan.passthrough.client.AchromaEffects;
 import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +16,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameRenderer.class)
 abstract class GameRendererMixin {
 	@Shadow @Final private RenderTarget mainRenderTarget;
-	@Shadow @Final private CrossFrameResourcePool resourcePool;
 
 	@ModifyArg(
 		method = "renderLevel",
@@ -34,7 +31,6 @@ abstract class GameRendererMixin {
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render3dHud(Lnet/minecraft/client/renderer/state/level/CameraRenderState;Lnet/minecraft/client/renderer/state/level/PlayerRenderState;Lnet/minecraft/client/renderer/state/OptionsRenderState;Z)V")
 	)
 	private void passthrough$captureWorld(final CallbackInfo ci) {
-		AchromaEffects.applyWorld(this.mainRenderTarget, this.resourcePool);
 		FrameExporter.captureWorld(this.mainRenderTarget);
 	}
 

@@ -208,12 +208,6 @@ namespace
 	Vector3 g_lastWalk{};
 	bool g_haveWalk = false;
 	int g_nextBlockSync = 0;
-	struct CannonBlast { float x, y, z, radius; int next, wave = 0; };
-	std::vector<CannonBlast> g_cannonBlasts;
-	struct CannonWave { float front = 0; int expires = 0; std::unordered_set<Entity> hit; };
-	std::unordered_map<std::string,CannonWave> g_cannonWaves;
-	struct CannonFire { int handle, expires; };
-	std::vector<CannonFire> g_cannonFires;
 	void props_clear_all();
 	std::vector<std::pair<int, int>> g_spiral;
 	std::atomic<bool> g_toggle{false};
@@ -1969,48 +1963,6 @@ namespace
 	void handle_event(const std::string &message)
 	{
 		const std::string type = json_str(message, "t");
-		if(type=="achromafx") {
-			compositor::set_achroma_drain(float(json_num(message,"drain",0)));
-			return;
-		}
-		if(type=="achromawave") {
-			const char *pos=json_value(message,"pos");
-			double x,y,z;
-			if(!pos || sscanf_s(pos,"[%lf ,%lf ,%lf ]",&x,&y,&z)!=3) return;
-			const float cx=float(x),cy=float(-z),cz=float(y-g_yOffset);
-			const float front=std::clamp(float(json_num(message,"r",0)),0.0f,190.0f);
-			const std::string key=std::to_string(int(json_num(message,"id",0)))+json_str(message,"wave");
-			if(!g_cannonWaves.count(key) && g_cannonWaves.size()>=16) return;
-			auto &wave=g_cannonWaves[key];
-			wave.expires=natives::GetGameTimer()+3000;
-			if(front<=wave.front) return;
-			const Ped player=natives::PlayerPedId();
-			const Vehicle mine=natives::IsPedInAnyVehicle(player,FALSE)?natives::GetVehiclePedIsIn(player,FALSE):0;
-			int handles[256],moved=0;
-			std::unordered_set<Entity> blockProps;
-			for(const auto &entry:g_props.live) blockProps.insert(entry.second);
-			auto push=[&](int count,int kind) {
-				for(int i=0;i<count;++i) {
-					const Entity e=handles[i];
-					if(e==player || e==mine || g_doublePeds.count(e) || wave.hit.count(e) || blockProps.count(e)) continue;
-					const Vector3 p=natives::GetEntityCoords(e,TRUE);
-					const float dx=p.x-cx,dy=p.y-cy,distance=std::sqrt(dx*dx+dy*dy);
-					if(distance>front || std::fabs(p.z-cz)>24.0f) continue;
-					wave.hit.insert(e);
-					const float strength=std::clamp(1.0f-distance/190.0f,0.35f,1.0f);
-					if(kind==1) natives::SetPedToRagdoll(e,2500);
-					const float force=(kind==2?18.0f:13.0f)*strength/std::max(distance,0.5f);
-					natives::ApplyForceToEntity(e,dx*force,dy*force,(kind==2?5.0f:7.0f)*strength);
-					++moved;
-				}
-			};
-			push(worldGetAllPeds(handles,256),1);
-			push(worldGetAllVehicles(handles,256),2);
-			push(worldGetAllObjects(handles,256),3);
-			wave.front=front;
-			if(moved) sendf("{\"t\":\"gtainfo\",\"event\":\"achroma-wave\",\"moved\":%d}",moved);
-			return;
-		}
 		if (type == "mcui") {
 			g_mcUiOpen = json_value(message, "open") && std::strncmp(json_value(message, "open"), "true", 4) == 0;
 			return;
@@ -2100,65 +2052,6 @@ namespace
 		const double radius = json_num(message, "r", 4.0);
 		g_booms[g_boomNext++ % 8] = {float(x), float(-z), float(y - g_yOffset), natives::GetGameTimer() + 500};
 		const std::string src = json_str(message, "src");
-		if(src=="achroma_bolt") {
-			const float bx=float(x),by=float(-z);
-			float bz=float(y-g_yOffset),ground=0;
-			if(natives::GetGroundZFor3dCoord(bx,by,bz+100.0f,&ground,FALSE,FALSE)) bz=ground+0.15f;
-			natives::AddExplosion(bx,by,bz,4,2.0f,TRUE,FALSE,0.35f,FALSE);
-			natives::AddExplosion(bx,by,bz,3,1.0f,TRUE,FALSE,0.0f,FALSE);
-			if(g_cannonFires.size()<96) {
-				const int fire=natives::StartScriptFire(bx,by,bz,8,TRUE);
-				if(fire!=-1) g_cannonFires.push_back({fire,natives::GetGameTimer()+25000});
-			}
-			sendf("{\"t\":\"gtainfo\",\"event\":\"achroma-bolt\",\"pos\":[%.2f,%.2f,%.2f]}",bx,by,bz);
-			return;
-		}
-		if (src == "achroma")
-		{
-			// The cannon's Minecraft radius can exceed GTA's fixed rocket blast radius.
-			// Mirror that area onto streamed GTA people and vehicles at the actual impact.
-			const float cx = float(x), cy = float(-z), cz = float(y - g_yOffset);
-			const float reach = std::clamp(float(radius), 2.0f, 64.0f);
-			natives::AddExplosion(cx, cy, cz, 4, 2.0f, TRUE, FALSE, 1.0f, FALSE);
-			if(g_cannonBlasts.size()<8) g_cannonBlasts.push_back({cx,cy,cz,reach,natives::GetGameTimer()+150});
-			int handles[256], peopleHit = 0, carsHit = 0;
-			const Ped player = natives::PlayerPedId();
-			const int people = worldGetAllPeds(handles, 256);
-			for (int i = 0; i < people; ++i)
-			{
-				const Ped q = handles[i];
-				if (q == player || g_doublePeds.count(q) || natives::IsPedDeadOrDying(q)) continue;
-				const Vector3 p = natives::GetEntityCoords(q, TRUE);
-				const float dx = p.x - cx, dy = p.y - cy, dz = p.z - cz;
-				const float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
-				if (distance >= reach) continue;
-				const float strength = 1.0f - distance / reach;
-				natives::ApplyDamageToPed(q, std::max(1, int(400.0f * strength)));
-				natives::SetPedToRagdoll(q, 2500);
-				const float push = 16.0f * strength / std::max(distance, 0.5f);
-				natives::ApplyForceToEntity(q, dx * push, dy * push, 6.0f * strength);
-				++peopleHit;
-			}
-			const Vehicle mine = natives::IsPedInAnyVehicle(player, FALSE) ? natives::GetVehiclePedIsIn(player, FALSE) : 0;
-			const int cars = worldGetAllVehicles(handles, 256);
-			for (int i = 0; i < cars; ++i)
-			{
-				const Vehicle v = handles[i];
-				if (v == mine) continue;
-				const Vector3 p = natives::GetEntityCoords(v, TRUE);
-				const float dx = p.x - cx, dy = p.y - cy, dz = p.z - cz;
-				const float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
-				if (distance >= reach) continue;
-				const float strength = 1.0f - distance / reach;
-				natives::AddExplosion(p.x, p.y, p.z, 4, strength * 2.0f, TRUE, FALSE, 0.0f, FALSE);
-				const float push = 12.0f * strength / std::max(distance, 0.5f);
-				natives::ApplyForceToEntity(v, dx * push, dy * push, 4.0f * strength);
-				++carsHit;
-			}
-			shake_from(cx, cy, cz, 1.1f);
-			sendf("{\"t\":\"gtainfo\",\"event\":\"achroma-impact\",\"people\":%d,\"vehicles\":%d,\"radius\":%.1f}", peopleHit, carsHit, reach);
-			return;
-		}
 		if (src == "fireball" || src == "wither_skull" || src == "dragon_fireball")
 		{
 			// a ghast's fireball: a rocket's blast and burning fuel
@@ -2170,31 +2063,6 @@ namespace
 		// TNT (radius 4) as a sticky bomb, smaller blasts (creepers are 3) as grenades.
 		natives::AddExplosion(float(x), float(-z), float(y - g_yOffset), radius >= 3.5 ? 2 : 0, 1.0f, TRUE, FALSE, 1.0f, FALSE);
 		shake_from(float(x), float(-z), float(y - g_yOffset), radius >= 3.5 ? 1.1f : 0.8f);
-	}
-
-	void cannon_blasts_tick()
-	{
-		const int now=natives::GetGameTimer();
-		for(auto it=g_cannonWaves.begin();it!=g_cannonWaves.end();) {
-			if(now>=it->second.expires) it=g_cannonWaves.erase(it); else ++it;
-		}
-		for(auto it=g_cannonFires.begin();it!=g_cannonFires.end();) {
-			if(now>=it->expires) { natives::RemoveScriptFire(it->handle); it=g_cannonFires.erase(it); } else ++it;
-		}
-		for(auto it=g_cannonBlasts.begin();it!=g_cannonBlasts.end();) {
-			if(now<it->next) { ++it; continue; }
-			const float radius=it->radius*float(it->wave+1)/3.0f;
-			for(int i=0;i<6;++i) {
-				const float angle=(float(i)+float(it->wave)*0.5f)*6.2831853f/6.0f;
-				const float x=it->x+std::cos(angle)*radius, y=it->y+std::sin(angle)*radius;
-				float z=it->z, ground=0;
-				if(natives::GetGroundZFor3dCoord(x,y,z+it->radius+2,&ground,FALSE,FALSE) && std::fabs(ground-z)<it->radius)
-					z=ground+0.15f;
-				natives::AddExplosion(x,y,z,4,0.6f,TRUE,FALSE,0.1f,FALSE);
-			}
-			if(++it->wave==3) it=g_cannonBlasts.erase(it);
-			else { it->next=now+300; ++it; }
-		}
 	}
 
 	/// Minecraft-driven flight: follow Minecraft's player with a smoothed chase camera; GTA's (invisible) player rides
@@ -2523,10 +2391,6 @@ namespace
 		compositor::set_active(on && !hidden);
 		if (!on)
 		{
-			g_cannonBlasts.clear();
-			g_cannonWaves.clear();
-			for(const auto &fire:g_cannonFires) natives::RemoveScriptFire(fire.handle);
-			g_cannonFires.clear();
 			movement_input(false);
 			if(g_drive.on) drive_set(ped,false,true);
 			g_drive.walk=false;
@@ -2736,7 +2600,6 @@ namespace
 				sendf("{\"t\":\"slot\",\"n\":%d}", i);
 
 		screen_fx_tick();
-		if(!hidden) cannon_blasts_tick();
 		mobs_tick(ped);
 		hell_tick(ped);
 		hot_tick(ped);

@@ -12,7 +12,7 @@ Normal launch:
 4. Probes `127.0.0.1:25599`. Starts `mc/gradlew.bat runClient` if absent, waits for the dedicated world, or asks for an old client to close normally.
 5. Starts Enhanced through Steam app **3240220**, preserving Steam options.
 
-The current handshake requires `inventory-ui-v3`, `movement-v4` and `achroma-world-v2`. Update the gate when a protocol change makes an old client incompatible.
+The current handshake requires `inventory-ui-v3` and `movement-v4`. Update the gate when a protocol change makes an old client incompatible.
 
 ## Configuration
 
@@ -20,4 +20,4 @@ Setup writes ignored **`launcher.local.json`**. Its structure is shown in `launc
 
 `--check` validates files and the Java 25 major version without launching games/installing updates, writes `logs/launcher-check.log`, and exits 0 for success or 1 for failure. `Minecraft: None` is normal when Minecraft is closed.
 
-The EXE does not install games/tools, authenticate accounts, accept elevation dialogs, download optional Achroma, update drivers or stop game processes. Local configuration and raw logs must not be published.
+The EXE does not install games/tools, authenticate accounts, accept elevation dialogs, update drivers or stop game processes. Local configuration and raw logs must not be published.

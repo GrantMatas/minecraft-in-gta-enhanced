@@ -53,7 +53,7 @@ public final class HostLink extends WebSocketServer {
 	@Override
 	public void onOpen(final WebSocket conn, final ClientHandshake handshake) {
 		Passthrough.LOG.info("host connected from {}", conn.getRemoteSocketAddress());
-		conn.send(String.format(Locale.ROOT, "{\"t\":\"hello\",\"v\":1,\"shm\":\"%s\",\"pid\":%d,\"features\":\"inventory-ui-v3,elytra,movement-v4,achroma-world-v2\",\"ready\":%b}", FrameExporter.NAME.replace("\\", "\\\\"), ProcessHandle.current().pid(), Minecraft.getInstance().player != null));
+		conn.send(String.format(Locale.ROOT, "{\"t\":\"hello\",\"v\":1,\"shm\":\"%s\",\"pid\":%d,\"features\":\"inventory-ui-v3,elytra,movement-v4\",\"ready\":%b}", FrameExporter.NAME.replace("\\", "\\\\"), ProcessHandle.current().pid(), Minecraft.getInstance().player != null));
 	}
 
 	@Override

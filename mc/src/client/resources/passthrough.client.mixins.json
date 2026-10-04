@@ -2,6 +2,6 @@
 	"required": true,
 	"package": "dev.rehan.passthrough.client.mixin",
 	"compatibilityLevel": "JAVA_25",
-	"client": ["AbstractClientPlayerMixin", "AchromaPostFxAccessor", "AchromaScreenFxAccessor", "AchromaPostFxMixin", "AchromaRenderTypesMixin", "AvatarRendererMixin", "CameraMixin", "ClientLevelMixin", "EntityPickMixin", "LivingEntityMixin", "FogRendererMixin", "GameRendererMixin", "GlCommandEncoderMixin", "KeyMappingAccessor", "LocalPlayerMixin", "ToastManagerMixin"],
+	"client": ["AbstractClientPlayerMixin", "AvatarRendererMixin", "CameraMixin", "ClientLevelMixin", "EntityPickMixin", "LivingEntityMixin", "FogRendererMixin", "GameRendererMixin", "GlCommandEncoderMixin", "KeyMappingAccessor", "LocalPlayerMixin", "ToastManagerMixin"],
 	"injectors": { "defaultRequire": 1 }
 }

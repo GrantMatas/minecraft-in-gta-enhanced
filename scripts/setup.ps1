@@ -6,7 +6,6 @@ param(
     [Parameter(Mandatory)][string]$ScriptHookSdkArchive,
     [Parameter(Mandatory)][string]$ReShadeRuntime,
     [string]$SteamExecutable = (Join-Path ${env:ProgramFiles(x86)} 'Steam\steam.exe'),
-    [string]$AchromaJar,
     [switch]$BuildOnly
 )
 $ErrorActionPreference = 'Stop'
@@ -45,12 +44,7 @@ Copy-Item -LiteralPath (Join-Path $root 'gta\shaders\MCPassthrough.fx') -Destina
 Copy-Item -LiteralPath (Join-Path $root 'launcher\ReShadePreset.ini') -Destination (Join-Path $package 'ReShadePreset.ini')
 # This setting applies only to offline Story Mode. Steam options stay user controlled.
 [IO.File]::WriteAllText((Join-Path $package 'args.txt'), '-nobattleye' + [Environment]::NewLine)
-if ($AchromaJar) {
-    if (-not (Test-Path -LiteralPath $AchromaJar -PathType Leaf)) { throw 'Achroma JAR not found.' }
-    $mods = Join-Path $root 'mc\run\mods'
-    New-Item -ItemType Directory -Force -Path $mods | Out-Null
-    Copy-Item -LiteralPath $AchromaJar -Destination (Join-Path $mods 'achroma-1.1.0.jar')
-}
+
 $env:JAVA_HOME = (Resolve-Path -LiteralPath $JavaHome).Path
 $env:GRADLE_USER_HOME = Join-Path $root '.cache\gradle'
 & (Join-Path $root 'mc\gradlew.bat') -p (Join-Path $root 'mc') build --no-daemon --console=plain

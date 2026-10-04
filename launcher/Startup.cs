@@ -63,7 +63,7 @@ static class Startup {
                 if(prefix[0]!=0x81 || (prefix[1]&128)!=0 || length>16384) throw new InvalidDataException("Invalid Minecraft hello frame.");
                 var hello=json.Deserialize<Dictionary<string,object>>(Encoding.UTF8.GetString(ReadBytes(stream,length)));
                 if(!hello.ContainsKey("t") || (string)hello["t"]!="hello") throw new InvalidDataException("Minecraft did not send its hello message.");
-                if(!hello.ContainsKey("features") || !hello["features"].ToString().Contains("inventory-ui-v3") || !hello["features"].ToString().Contains("movement-v4") || !hello["features"].ToString().Contains("achroma-world-v2")) return "Old";
+                if(!hello.ContainsKey("features") || !hello["features"].ToString().Contains("inventory-ui-v3") || !hello["features"].ToString().Contains("movement-v4")) return "Old";
                 return hello.ContainsKey("ready") && Convert.ToBoolean(hello["ready"]) ? "Ready" : "Loading";
             } catch(InvalidDataException) { throw; } catch(SocketException) { return "None"; } catch(IOException) { return "None"; }
         }
